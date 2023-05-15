@@ -3,13 +3,14 @@ import mysql from "mysql";
 import addUser from "./addUser";
 import removeUser from "./removeUser";
 import updateUser from "./updateUser";
+import authUser from "./authUser";
 
 // Création de la connexion à la base de données
 const connection = mysql.createConnection({
-  host: "mysql-qmoskwa.alwaysdata.net",
-  user: "qmoskwa",
-  password: "23juin06",
-  database: "qmoskwa_tpfullstack",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // Test de la connexion à la base de données
@@ -52,21 +53,39 @@ app.get("/", (req, res) => {
       console.error(err);
       res.status(500).send('Erreur lors de la récupération des utilisateurs');
     } else {
+      console.log("affichage des users effectués");
       res.send(results);
     }
   });
 });
-app.get("/addUser", (req, res) => {
-    addUser("test", "password123", generateToken());
-    res.redirect("/");
+
+app.post("/addUser", (req, res) => {
+    addUser("test", "password123");
 });
-app.get("/removeUser", (req, res) => {
+
+app.delete("/removeUser", (req, res) => {
     removeUser("test", "password123");
-    res.redirect("/");
 });
-app.get("/updateUser", (req, res) => {
-    updateUser("test","test2", "password123");
-    res.redirect("/");
+
+app.put("/updateUser/:login/:password", (req, res) => {
+  var login = req.params.login;
+  var password = req.params.password;
+  updateUser("test","test2", "password123");
+});
+
+app.put("/auth", (req, res) => {
+  const { login, password } = req.body;
+  const token = generateToken();
+  authUser(login, password, token, (err: any, result: string) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Erreur lors de l'authentification");
+    } else if (result === "Utilisateur ou mot de passe incorrect") {
+      res.status(401).send("Utilisateur ou mot de passe incorrect");
+    } else {
+      res.send(result);
+    }
+  });
 });
 
 const port = process.env.PORT || 3000;

@@ -6,10 +6,10 @@ const app = express();
 
 // Création de la connexion à la base de données
 const connection = mysql.createConnection({
-  host: "mysql-qmoskwa.alwaysdata.net",
-  user: "qmoskwa",
-  password: "23juin06",
-  database: "qmoskwa_tpfullstack",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // Test de la connexion à la base de données

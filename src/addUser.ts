@@ -7,10 +7,10 @@ const app = express();
 
 // Création de la connexion à la base de données
 const connection = mysql.createConnection({
-  host: "mysql-qmoskwa.alwaysdata.net",
-  user: "qmoskwa",
-  password: "23juin06",
-  database: "qmoskwa_tpfullstack",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // Test de la connexion à la base de données
@@ -31,7 +31,7 @@ process.on("SIGINT", () =>
 );
 
 
-const addUser = (login: string, password: string, token: string) => {
+const addUser = (login: string, password: string) => {
   const saltRounds = 10;
   const hashedPassword = bcrypt.hashSync(password, saltRounds);
   //   verification de l'unicité du nouveau nom d'utilisateur
@@ -50,7 +50,7 @@ const addUser = (login: string, password: string, token: string) => {
         return;
       }
     //   insertion du nouvel utilisateur
-      const user = { login, password: hashedPassword, token };
+      const user = { login, password: hashedPassword};
       connection.query("INSERT INTO userTab SET ?", user, (error, results) => {
         if (error) {
           console.error(error);

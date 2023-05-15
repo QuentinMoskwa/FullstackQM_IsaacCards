@@ -1,0 +1,8 @@
+
+POST http://localhost:3000/addUser 
+
+###Delete User
+DELETE http://localhost:3000/removeUser
+
+###PUT User
+PUT http://localhost:3000/auth
