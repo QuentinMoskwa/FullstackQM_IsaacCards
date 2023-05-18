@@ -1,26 +1,21 @@
 import express from "express";
 import mysql from "mysql";
-import addUser from "./addUser";
-import removeUser from "./removeUser";
-import updateUser from "./updateUser";
-import authUser from "./authUser";
+import {
+  addUser,
+  authUser,
+  disconnectUser,
+  removeUser,
+  updateUser,
+} from "./User";
+import {
+  createIsaacCard,
+  readIsaacCard,
+  updateIsaacCard,
+  deleteIsaacCard,
+} from "./Card";
+import dotenv from "dotenv";
 
-// Création de la connexion à la base de données
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
-
-// Test de la connexion à la base de données
-connection.connect((err) => {
-  if (err) {
-    console.error("Erreur de connexion à la base de données : ", err);
-  } else {
-    console.log("Connexion à la base de données établie.");
-  }
-});
+dotenv.config();
 
 function generateToken(): string {
   const chars =
@@ -33,31 +28,7 @@ function generateToken(): string {
   return token;
 }
 
-
-
-
-
-// Fermeture de la connexion à la base de données lorsque l'application est arrêtée
-process.on("SIGINT", () =>
-connection.end((err) => {
-    console.log("Fermeture de la connexion à la base de données.");
-    process.exit(err ? 1 : 0);
-})
-);
-
 const app = express();
-
-app.get("/", (req, res) => {
-    connection.query('SELECT * FROM userTab', (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Erreur lors de la récupération des utilisateurs');
-    } else {
-      console.log("affichage des users effectués");
-      res.send(results);
-    }
-  });
-});
 
 app.post("/addUser", (req, res) => {
     addUser("test", "password123");
@@ -73,19 +44,43 @@ app.put("/updateUser/:login/:password", (req, res) => {
   updateUser("test","test2", "password123");
 });
 
-app.put("/auth", (req, res) => {
-  const { login, password } = req.body;
-  const token = generateToken();
-  authUser(login, password, token, (err: any, result: string) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Erreur lors de l'authentification");
-    } else if (result === "Utilisateur ou mot de passe incorrect") {
-      res.status(401).send("Utilisateur ou mot de passe incorrect");
-    } else {
-      res.send(result);
-    }
-  });
+app.put("/auth", (req, res: express.Response) => {
+  authUser(generateToken());
+});
+
+app.put("/disconnect/:login/:password", (req, res) => {
+  var login = req.params.login;
+  var password = req.params.password;
+  disconnectUser();
+});
+
+// cards
+
+app.post("/addCard/:login", (req, res) => {
+  var login = req.params.login;
+  createIsaacCard(login);
+});
+
+app.get("/readCards/:login", (req, res) => {
+  var login = req.params.login;
+  readIsaacCard(login);
+});
+app.get("/readCards/:login/:cardName", (req, res) => {
+  var login = req.params.login;
+  var cardName = req.params.cardName;
+  readIsaacCard(login, cardName);
+});
+
+app.put("/updateIsaacCard/:login/:cardName", (req, res) => {
+  var login = req.params.login;
+  var cardName = req.params.cardName;
+  updateIsaacCard(login, cardName, 50);
+});
+
+app.delete("/deleteIsaacCard/:login/:cardName", (req, res) => {
+  var login = req.params.login;
+  var cardName = req.params.cardName;
+  deleteIsaacCard(login, cardName);
 });
 
 const port = process.env.PORT || 3000;

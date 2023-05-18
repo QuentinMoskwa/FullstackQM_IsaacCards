@@ -1,8 +1,27 @@
 
 POST http://localhost:3000/addUser 
 
+
 ###Delete User
 DELETE http://localhost:3000/removeUser
 
-###PUT User
+###Auth User
 PUT http://localhost:3000/auth
+
+###Disconnect User
+PUT http://localhost:3000/disconnect/test/1234
+
+###PUT Update
+PUT http://localhost:3000/updateUser/test/1234
+
+###Add Card
+POST http://localhost:3000/addCard/test 
+
+###Read Card
+GET http://localhost:3000/readCards/test/Blue
+
+###Update Card
+PUT http://localhost:3000/updateIsaacCard/test/BlueBaby
+
+###Delete Card
+DELETE http://localhost:3000/deleteIsaacCard/test/BlueBaby
